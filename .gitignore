@@ -1,12 +1,5 @@
-/.DS_Store
-src/commands/.DS_Store
-src/handlers/.DS_Store
-src/kbds/.DS_Store
-src/methods/.DS_Store
-src/commands/__pycache__/
-src/handlers/__pycache__/
-src/kbds/__pycache__/
-src/methods/__pycache__/
-/aio
+.DS_Store
+__pycache__/
+aio/
 .env
 q
