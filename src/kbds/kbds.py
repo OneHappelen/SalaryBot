@@ -36,3 +36,5 @@ start_kb4 = ReplyKeyboardMarkup(
 
 del_kb = ReplyKeyboardRemove()
 
+
+error_text = "Не корректный ввод, введите что требовалось в прошлом сообщении"

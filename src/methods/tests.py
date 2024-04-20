@@ -15,3 +15,7 @@ class Test:
         if data_bot.lower() in answer_list:
             return True
         return False
+    
+test = Test()
+
+print(test.int_test("0"))

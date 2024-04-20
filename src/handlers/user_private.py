@@ -1,13 +1,17 @@
 from aiogram import types, Router, F
-from aiogram.filters import CommandStart, Command, StateFilter
+from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from kbds import kbds
-from salary.count_salary import Salary
+from kbds.kbds import error_text 
+from methods.salary import Salary
+from methods.tests import Test
 
 user_router = Router()
+test = Test()
+count = Salary()
 
-ct = Salary()
+
 class CountSalaryAll(StatesGroup):
     days = State()
     summ = State()
@@ -31,12 +35,11 @@ async def count_salary(message: types.Message):
     
 @user_router.message(StateFilter(None), F.text == "Ввести всю выручку за месяц")
 async def how_many_days(message: types.Message, state: FSMContext):
-    if not str(message.text).isdigit():
-        await message.answer(
-            "Сколько смен у Вас было в месяце?", reply_markup=kbds.start_kb3)
+    if test.str_test(message.text):
+        await message.answer("Сколько смен у Вас было в месяце?", reply_markup=kbds.start_kb3)
         await state.set_state(CountSalaryAll.days)
         return
-    await message.answer("Упс, что-то пошло не так, введите количество отработанных смен", reply_markup=kbds.start_kb3)
+    await message.answer(error_text, reply_markup=kbds.start_kb3)
     
 
 @user_router.message(StateFilter('*'), F.text.casefold() == "вернуться в начало")
@@ -69,50 +72,49 @@ async def cancel_step_handler(message: types.Message, state: FSMContext) -> None
 
 @user_router.message(CountSalaryAll.days, F.text) 
 async def how_many_sum(message: types.Message, state: FSMContext):
-    if str(message.text).isdigit(): 
+    if test.int_test(message.text): 
         await state.update_data(days=message.text)
         await message.answer("Введите всю выручку за отработанные дни", reply_markup=kbds.start_kb3)
         await state.set_state(CountSalaryAll.summ)
         return
-    await message.answer("Упс, что-то пошло не так, введите количество отработанных смен", reply_markup=kbds.start_kb3)
+    await message.answer(error_text, reply_markup=kbds.start_kb3)
 
 
 @user_router.message(CountSalaryAll.days) 
 async def how_many_sum(message: types.Message):
-    await message.answer("Упс, что-то пошло не так, введите выручку за отработанные дни", reply_markup=kbds.start_kb3)
+    await message.answer(error_text, reply_markup=kbds.start_kb3)
 
 
 @user_router.message(CountSalaryAll.summ, F.text)
 async def service(message: types.Message, state: FSMContext):
-    if str(message.text).isdigit():
+    if test.int_test(message.text):
         await state.update_data(summ=message.text)
         await message.answer("Вы прошли сервис в этом месяце 'Да/Нет'", reply_markup=kbds.start_kb3)
         await state.set_state(CountSalaryAll.service)
         return
-    await message.answer("Упс, что-то пошло не так, введите выручку за отработанные дни", reply_markup=kbds.start_kb3)
+    await message.answer(error_text, reply_markup=kbds.start_kb3)
 
 
 @user_router.message(CountSalaryAll.summ)
 async def salary(message: types.Message):
-    await message.answer("Упс, что-то пошло не так, введите выручку за отработанные дни", reply_markup=kbds.start_kb3)
+    await message.answer(error_text, reply_markup=kbds.start_kb3)
 
 
 @user_router.message(CountSalaryAll.service, F.text)
 async def done(message: types.Message, state: FSMContext):
-    answer_list = ['да', 'нет']
-    if str(message.text).lower() in answer_list:
+    if test.anwswer_test(message.text):
         await state.update_data(service=message.text)
         data = await state.get_data()
-        await message.answer(f"Вашу зарплата без учета НДФЛ составит примерно: {ct.count_all(data)}р.",
+        await message.answer(f"Вашу зарплата без учета НДФЛ составит примерно: {count.count_all(data)}р.",
                             reply_markup=types.ReplyKeyboardRemove())
         await state.clear()
         return
-    await message.answer("Упс, что-то пошло не так, ответьте, вы прошли сервис 'Да/Нет'", reply_markup=kbds.start_kb3)
+    await message.answer(error_text, reply_markup=kbds.start_kb3)
     
 
 @user_router.message(CountSalaryAll.service)
 async def done(message: types.Message):
-    await message.answer("Упс, что-то пошло не так, ответьте, вы прошли сервис 'Да/Нет'", reply_markup=kbds.start_kb3)
+    await message.answer(error_text, reply_markup=kbds.start_kb3)
 
 
 
@@ -143,33 +145,54 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
 
 @user_router.message(CountSalaryEvery.days_every, F.text)
 async def how_many_sum(message: types.Message, state: FSMContext):
-    await state.update_data(days=message.text)
-    await message.answer(f"Введите выручку за 1-ый день", reply_markup=kbds.start_kb4)
-    await state.set_state(CountSalaryEvery.summ_every)
+    if test.int_test(message.text):
+        await state.update_data(days=message.text)
+        await message.answer(f"Введите выручку за 1-ый день", reply_markup=kbds.start_kb4)
+        await state.set_state(CountSalaryEvery.summ_every)
+        return
+    await message.answer(error_text, reply_markup=kbds.start_kb4)
+
+
+@user_router.message(CountSalaryEvery.days_every, F.text)
+async def how_many_sum_test(message: types.Message):
+    await message.answer(error_text, reply_markup=kbds.start_kb4)
 
 
 @user_router.message(CountSalaryEvery.summ_every, F.text)
-async def how_many_sum(message: types.Message, state: FSMContext):
-    await state.update_data(summ_every=message.text)
-    data = await state.get_data()
-    count_summ = data.get('count_summ', 0)
-    await state.update_data(count_summ = count_summ + int(message.text))
-    print(count_summ)
-    days = int(data['days'])
-    current_day = data.get('current_day', 2)  # Получаем текущий день из состояния, если он есть
-    if current_day <= days:
-        await message.answer(f"Введите выручку за {current_day}-ый день", 
-                            reply_markup=kbds.start_kb4)
-        await state.update_data(current_day=current_day + 1)  # Увеличиваем счетчик дня
-        await state.set_state(CountSalaryEvery.summ_every)
+async def how_many_sum1(message: types.Message, state: FSMContext):
+    if test.int_test(message.text):
+        await state.update_data(summ_every=message.text)
+        data = await state.get_data()
+        count_summ = data.get('count_summ', 0)
+        await state.update_data(count_summ = count_summ + int(message.text))
+        print(count_summ)
+        days = int(data['days'])
+        current_day = data.get('current_day', 2)  # Получаем текущий день из состояния, если он есть
+        if current_day <= days:
+            await message.answer(f"Введите выручку за {current_day}-ый день", 
+                                reply_markup=kbds.start_kb4)
+            await state.update_data(current_day=current_day + 1)  # Увеличиваем счетчик дня
+            await state.set_state(CountSalaryEvery.summ_every)
+        else:
+            await message.answer("Вы прошли сервис в этом месяце 'Да/Нет'", reply_markup=kbds.start_kb4)
+            await state.set_state(CountSalaryEvery.service_every)
     else:
-        await message.answer("Вы прошли сервис в этом месяце 'Да/Нет'", reply_markup=kbds.start_kb4)
-        await state.set_state(CountSalaryEvery.service_every)
+        await message.answer(error_text, reply_markup=kbds.start_kb4)
+
+
+@user_router.message(CountSalaryEvery.summ_every, F.text)
+async def how_many_summ1_test(message: types.Message):
+    await message.answer(error_text, reply_markup=kbds.start_kb4)
 
 
 @user_router.message(CountSalaryEvery.service_every, F.text)
 async def every_service(message: types.Message, state: FSMContext):
     await state.update_data(service_every=message.text)
     data = await state.get_data()
-    await message.answer(f"Вашу зарплата без учета НДФЛ составит примерно: {ct.count_every(data)}р.", reply_markup=kbds.del_kb)
+    await message.answer(f"Вашу зарплата без учета НДФЛ составит примерно: {count.count_every(data)}р.", reply_markup=kbds.del_kb)
     await state.clear()
+
+
+@user_router.message(CountSalaryEvery.service_every, F.text)
+async def every_service(message: types.Message):
+    await message.answer(error_text, reply_markup=kbds.start_kb4)
