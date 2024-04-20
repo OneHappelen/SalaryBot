@@ -1,1 +1,5 @@
-aiogram 3.3.0
+aiogram==3.3.0
+distlib==0.3.8
+filelock==3.13.1
+platformdirs==4.2.0
+virtualenv==20.25.1
