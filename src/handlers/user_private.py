@@ -17,8 +17,8 @@ class CountSalaryAll(StatesGroup):
     summ = State()
     service = State()
 
-    state_dict = {'CountSalaryAll:days':'Введите количество дней заного',
-                  'CountSalaryAll:summ':'Введите всю выручку заного',
+    state_dict = {'CountSalaryAll:days':'Введите количество дней заново',
+                  'CountSalaryAll:summ':'Введите всю выручку заново',
                   'CountSalaryAll:service':'Еще раз скажите, прошли сервис "Да/Нет"'}
 
 
@@ -105,7 +105,7 @@ async def done(message: types.Message, state: FSMContext):
     if test.anwswer_test(message.text):
         await state.update_data(service=message.text)
         data = await state.get_data()
-        await message.answer(f"Вашу зарплата без учета НДФЛ составит примерно: {count.count_all(data)}р.",
+        await message.answer(f"Ваша зарплата без учета НДФЛ составит примерно: {count.count_all(data)}р.",
                             reply_markup=types.ReplyKeyboardRemove())
         await state.clear()
         return
@@ -187,10 +187,13 @@ async def how_many_summ1_test(message: types.Message):
 
 @user_router.message(CountSalaryEvery.service_every, F.text)
 async def every_service(message: types.Message, state: FSMContext):
-    await state.update_data(service_every=message.text)
-    data = await state.get_data()
-    await message.answer(f"Вашу зарплата без учета НДФЛ составит примерно: {count.count_every(data)}р.", reply_markup=kbds.del_kb)
-    await state.clear()
+    if test.anwswer_test(message.text):
+        await state.update_data(service_every=message.text)
+        data = await state.get_data()
+        await message.answer(f"Ваша зарплата без учета НДФЛ составит примерно: {count.count_every(data)}р.", reply_markup=kbds.del_kb)
+        await state.clear()
+        return
+    await message.answer(error_text, reply_markup=kbds.start_kb4)
 
 
 @user_router.message(CountSalaryEvery.service_every, F.text)
