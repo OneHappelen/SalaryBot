@@ -29,18 +29,16 @@ async def start_cmd(message: types.Message, state: FSMContext):
     await message.answer("Привет, я виртуальный помощник, я помогу тебе посчитать зарплату", reply_markup=kbds.start_kb)
 
 
+@user_router.message(F.text == "Посчитать зарплату")
+async def count_salary(message: types.Message):
+    await message.answer("Хотите ввести всю сумму или посчитать для вас?", reply_markup=kbds.start_kb2)
+
+
 @user_router.message(F.text)
 async def hack(message: types.Message):
     if test.hack_test(message.text):
         await message.answer(f"Ваша зарплата без учета НДФЛ составит примерно: {count.count_all(full_sal(message.text))}р.",
                             reply_markup=types.ReplyKeyboardRemove())
-    else:
-        return
-
-
-@user_router.message(F.text == "Посчитать зарплату")
-async def count_salary(message: types.Message):
-    await message.answer("Хотите ввести всю сумму или посчитать для вас?", reply_markup=kbds.start_kb2)
     
     
 @user_router.message(StateFilter(None), F.text == "Ввести всю выручку за месяц")
