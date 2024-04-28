@@ -34,6 +34,8 @@ async def hack(message: types.Message):
     if test.hack_test(message.text):
         await message.answer(f"Ваша зарплата без учета НДФЛ составит примерно: {count.count_all(full_sal(message.text))}р.",
                             reply_markup=types.ReplyKeyboardRemove())
+    else:
+        return
 
 
 @user_router.message(F.text == "Посчитать зарплату")
