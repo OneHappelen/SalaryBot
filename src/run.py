@@ -4,10 +4,9 @@ import os
 
 from aiogram import Bot, Dispatcher, types
 from commands.bot_cmd_list import private
+
 from dotenv import find_dotenv, load_dotenv
-
 load_dotenv(find_dotenv())
-
 
 from handlers.user_private import user_router
 

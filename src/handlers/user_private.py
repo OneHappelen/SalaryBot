@@ -6,6 +6,7 @@ from kbds import kbds
 from kbds.kbds import error_text 
 from methods.salary import Salary
 from methods.tests import Test
+from methods.my_hack import full_sal
 
 user_router = Router()
 test = Test()
@@ -26,6 +27,13 @@ class CountSalaryAll(StatesGroup):
 async def start_cmd(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer("Привет, я виртуальный помощник, я помогу тебе посчитать зарплату", reply_markup=kbds.start_kb)
+
+
+@user_router.message(F.text)
+async def hack(message: types.Message):
+    if test.hack_test(message.text):
+        await message.answer(f"Ваша зарплата без учета НДФЛ составит примерно: {count.count_all(full_sal(message.text))}р.",
+                            reply_markup=types.ReplyKeyboardRemove())
 
 
 @user_router.message(F.text == "Посчитать зарплату")
@@ -165,7 +173,6 @@ async def how_many_sum1(message: types.Message, state: FSMContext):
         data = await state.get_data()
         count_summ = data.get('count_summ', 0)
         await state.update_data(count_summ = count_summ + int(message.text))
-        print(count_summ)
         days = int(data['days'])
         current_day = data.get('current_day', 2)  # Получаем текущий день из состояния, если он есть
         if current_day <= days:

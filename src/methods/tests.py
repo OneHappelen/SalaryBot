@@ -16,6 +16,32 @@ class Test:
             return True
         return False
     
-test = Test()
+    def hack_test(self, data_bot: str) -> bool:
+        mounth_list = ['янв', 'фев', 'март', 'апрел', 'ма', 'июн', 'июл', 'август', 'сентяб', 'октябр', 'ноябр', 'декабр']
+        answer_flag = False
+        mounth_flag = False
+        stack = ''
 
-print(test.int_test("0"))
+        for i in data_bot:
+            if i in ['д', 'н']:
+                answer_flag = True
+                break
+
+
+        for mounth in data_bot:
+            if mounth.isalpha():
+                stack += mounth
+            else:
+                for i in mounth_list:
+                    if i in stack.lower():
+                        stack = ''
+                        mounth_flag = True
+                        break
+
+        if mounth_flag and answer_flag:
+            return True
+        return False
+            
+
+    
+test = Test()
